@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border font-sans;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.react-datepicker-wrapper {
+  width: 100%;
+}
+.custom-datepicker {
+  width: 100%;
+  border: 0px solid;
+}
+.custom-datepicker:hover {
+  cursor:default
+}
+.custom-datepicker .react-datepicker__input-container input {
+  border: none; 
+  outline: none;
+}
+
+.custom-datepicker .react-datepicker__input-container input:focus {
+  border: none; /* Ensures no border on focus */
+  outline: none; /* Ensures no outline on focus */
+}
+
+.react-datepicker__input-container input {
+  border: none; /* Removes the border */
+  outline: none; /* Removes the focus outline */
+}
+
+.react-datepicker__input-container input:focus {
+  border: none; /* Ensures no border on focus */
+  outline: none; /* Ensures no outline on focus */
+}
+
+.customModalContainer {
+  justify-content: flex-end !important;
+}
+.customModalContent {
+  margin: 0px !important;
+  border-radius: 0px !important;
+  min-height: 100vh !important;
+  overflow-y: auto !important;
+}
+
+/* .sCsSbKP9yxvw4LQAeaTz, .ji5jASszKFf2CGCmbxEh, .pVo6XoSfywa4eLk9ef2S, .ji5jASszKFf2CGCmbxEh, .qiKszVnhEXQGhWJ0gGcL, .lRNsiz_pTf7YmA5QMh4z {
+  background-color: transparent !important;
+}
+
+.vjwEXnTmP6jAK8LlvWL_>div {
+ 
+  border-radius: 50px !important;
+}*/
+
+.sCsSbKP9yxvw4LQAeaTz {
+  min-width: 100% !important;
+} 
+
+.str-video__participant-details {
+  display: none;
+}
+
+.video-preview {
+  width: auto;
+  height: auto;
+}
+
+.str-video__device-settings {
+  width: 450px;
+}
+
+.p-calendar:not(.p-calendar-disabled).p-focus > .p-inputtext {
+  box-shadow: none !important;
+}
+
+.p-datepicker {
+  z-index: 9999 !important;
+}
+
+.css-22tkef {
+  border-bottom-width: 0px !important;
+}
+
+.css-kiplau{
+  border-bottom-width: 0px !important;
+}
+
