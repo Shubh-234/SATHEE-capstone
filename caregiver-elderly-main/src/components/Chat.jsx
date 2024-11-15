@@ -31,9 +31,9 @@ export default function ClientComponent({ accessToken }) {
           }, 200);
         }}
       >
+        <StartCall />
         <Messages ref={ref} />
         <Controls />
-        <StartCall />
       </VoiceProvider>
     </div>
   );
