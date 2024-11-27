@@ -217,6 +217,8 @@ import {
   Heading,
   useDisclosure,
   Button,
+  Input,
+  Image,
 } from "@chakra-ui/react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import TopNav from "@/components/TopNav";
@@ -241,6 +243,14 @@ import Preferences from "@/components/preferences";
 import Reminder from "@/components/reminder";
 import { getHumeAccessToken } from "@/utils/getHumeAccessToken";
 import dynamic from "next/dynamic";
+import Data from "@/components/chatbot/Animation.json";
+import Lottie from "react-lottie-player";
+import axios from "axios";
+//import { HStack } from "@chakra-ui/react";
+import TextChat from "@/components/TextChat";
+import Bot from "@/components/chatbot/chatbot";
+import ReactMarkdown from "react-markdown";
+import EmotionDetection from "@/components/EmotionDetection";
 
 // Dynamically import Chat component to disable SSR for it
 const Chat = dynamic(() => import("@/components/Chat"), { ssr: false });
@@ -260,6 +270,18 @@ export default function Page() {
     onOpen: onOpenReminder,
     onClose: onCloseReminder,
   } = useDisclosure();
+  const [startChat, setStartChat] = useState(false);
+  const chatContainerRef = useRef(null);
+  const [messages, setMessages] = useState([]);
+  const [query, setQuery] = useState("");
+  const [showTextbox, setShowTextbox] = useState(false);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -296,6 +318,24 @@ export default function Page() {
     });
   }
 
+  async function handleSendQuery(text) {
+    axios
+      .post("/api/groq", {
+        content: text,
+      })
+      .then((response) => {
+        setMessages((prevMessages) => {
+          const newState = [...prevMessages];
+          newState.pop();
+          newState.push({
+            by: "ai",
+            msg: response.data.content,
+          });
+          return newState;
+        });
+        // console.log(response.data);
+      });
+  }
   return loading ? (
     <Loading />
   ) : (
@@ -347,18 +387,124 @@ export default function Page() {
 
         {/* Render Chat component on the page */}
         {accessToken && (
-          <Box mt={8}>
-            <Chat accessToken={accessToken} />
-          </Box>
+          <HStack mt={8} gap={10}>
+            <Box>
+              <Chat accessToken={accessToken} />
+            </Box>
+            <Box>
+              <Button
+                pos={"fixed"}
+                bottom={5}
+                right={100}
+                onClick={() => {
+                  setShowTextbox(true);
+                  setStartChat(true);
+                }}
+              >
+                {" "}
+                StartChat
+              </Button>
+            </Box>
+          </HStack>
         )}
       </Flex>
-
+      {startChat && (
+        <Box
+          display={"flex"}
+          flexDir={"column"}
+          justifyContent={"space-between"}
+          maxW={"800px"}
+        >
+          <div className="chatbot-body" ref={chatContainerRef}>
+            {messages.map((message, index) =>
+              message.by == "ai" ? (
+                message.msg == "loading" ? (
+                  <Lottie
+                    key={index}
+                    loop
+                    animationData={Data}
+                    play
+                    style={{ width: "100px" }}
+                  />
+                ) : (
+                  <div
+                    key={index}
+                    className={`message-container-${message.by}`}
+                  >
+                    <div className="ai-div-container">
+                      <Image
+                        className="ai-img"
+                        src={"/chatbot/aiiq_icon.png"}
+                      />
+                    </div>
+                    <div className="message-ai">
+                      <div className="markdown">
+                        <ReactMarkdown>{message.msg}</ReactMarkdown>
+                      </div>
+                    </div>
+                  </div>
+                )
+              ) : (
+                <div key={index} className={`message-container-${message.by}`}>
+                  <div className="message-user">{message.msg}</div>
+                  <div className="user-div-container">
+                    <Image className="user-img" src={"/chatbot/user.svg"} />
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+          <Flex
+            width={"100%"}
+            justifyContent={"center"}
+            alignItems={"center"}
+            mb={10}
+            gap={10}
+          >
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              width={"300px"}
+            />
+            <Button
+              onClick={() => {
+                const text = query;
+                setQuery("");
+                setMessages((prevMessages) => {
+                  const newState = [...prevMessages];
+                  newState.push({
+                    by: "user",
+                    msg: text,
+                  });
+                  newState.push({
+                    by: "ai",
+                    msg: "loading",
+                  });
+                  return newState;
+                });
+                handleSendQuery(text);
+              }}
+            >
+              Send
+            </Button>
+            <DangerButton
+              onClick={() => {
+                setStartChat(false);
+                setMessages([]);
+              }}
+            >
+              End Chat
+            </DangerButton>
+          </Flex>
+        </Box>
+      )}
       <Reminder
         isOpenReminder={isOpenReminder}
         onCloseReminder={onCloseReminder}
         email={UserState.value.data?.email}
         userRef={UserState.value.data?.ref}
       />
+      <EmotionDetection />
     </>
   );
 }
