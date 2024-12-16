@@ -6,7 +6,7 @@ import Controls from "./Controls";
 import StartCall from "./StartCall";
 import { ComponentRef, useRef } from "react";
 
-export default function ClientComponent({ accessToken }) {
+export default function ClientComponent({ accessToken,status,onPress}) {
   const timeout = useRef(null);
   const ref = useRef(null);
 
@@ -31,8 +31,8 @@ export default function ClientComponent({ accessToken }) {
           }, 200);
         }}
       >
-        <StartCall />
-        <Messages ref={ref} />
+        <StartCall onPress = {onPress}/>
+        <Messages ref={ref} status={status} />
         <Controls />
       </VoiceProvider>
     </div>

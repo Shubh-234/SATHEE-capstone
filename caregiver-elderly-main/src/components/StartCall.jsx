@@ -6,17 +6,13 @@ import { Phone } from "lucide-react";
 export default function StartCall() {
   const { status, connect } = useVoice();
 
+
   return (
     <AnimatePresence>
       {status.value !== "connected" ? (
-        <div style={{ position: "relative", height: "100%", width: "100%" }}>
+        <div >
           <motion.div
-            style={{
-              position: "fixed",
-              right: "40px",
-              right: 0,
-              bottom: "20px",
-            }}
+          
             initial="initial"
             animate="enter"
             exit="exit"
@@ -35,8 +31,9 @@ export default function StartCall() {
                 }}
               >
                 <Button
-                  className={"z-50 flex items-center gap-1.5"}
+                  className={"z-50 items-center gap-1.5"}
                   onClick={() => {
+                    // onPress() 
                     connect()
                       .then(() => {})
                       .catch(() => {})

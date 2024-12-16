@@ -86,12 +86,10 @@ const EmotionDetection = () => {
   }, [captureAndSendFrame]);
 
   return (
-    <Box position="fixed" left="20px" bottom="20px" zIndex="10">
+    <Box ml={10}>
       {/* Emotion Display Above the Camera Window */}
       <Box
-        position="absolute"
-        top="-60px" // Position above the camera
-        left="0"
+       
         width="100%"
         bg="rgba(0, 0, 0, 0.5)"
         color="white"
@@ -112,8 +110,8 @@ const EmotionDetection = () => {
           ref={webcamRef}
           screenshotFormat="image/jpeg"
           videoConstraints={{ facingMode: "user" }}
-          width="200px"
-          height="150px"
+          width="400px"
+          height="400px"
           style={{ borderRadius: "8px", border: "2px solid #ccc" }}
         />
       </Box>

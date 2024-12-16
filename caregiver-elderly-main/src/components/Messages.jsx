@@ -3,13 +3,22 @@ import { cn } from "@/utils";
 import { useVoice } from "@humeai/voice-react";
 import Expressions from "./Expressions";
 import { AnimatePresence, motion } from "framer-motion";
-import { ComponentRef, forwardRef } from "react";
+import { ComponentRef, forwardRef, useEffect } from "react";
+import { Modal, ModalContent,ModalBody, ModalOverlay } from "@chakra-ui/react";
 
-const Messages = forwardRef(function Messages(_, ref) {
+const Messages = forwardRef(function Messages(_, ref,status) {
   const { messages } = useVoice();
 
+  useEffect(()=> {
+    console.log(status)
+  },[status]) 
+
   return (
-    <motion.div
+    // <Modal isOpen= {status}>
+    //   <ModalOverlay />
+    //   <ModalContent>
+    //     <ModalBody>
+        <motion.div
       layoutScroll
       className={"grow rounded-md overflow-auto p-4"}
       ref={ref}
@@ -63,6 +72,9 @@ const Messages = forwardRef(function Messages(_, ref) {
         </AnimatePresence>
       </motion.div>
     </motion.div>
+    //     </ModalBody>
+    //   </ModalContent>
+    // </Modal>
   );
 });
 

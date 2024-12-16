@@ -219,6 +219,11 @@ import {
   Button,
   Input,
   Image,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalOverlay,
+  ModalContent,
 } from "@chakra-ui/react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import TopNav from "@/components/TopNav";
@@ -251,6 +256,10 @@ import TextChat from "@/components/TextChat";
 import Bot from "@/components/chatbot/chatbot";
 import ReactMarkdown from "react-markdown";
 import EmotionDetection from "@/components/EmotionDetection";
+import Messages from "@/components/Messages";
+import Controls from "@/components/Controls";
+import StartCall from "@/components/StartCall";
+import { VoiceProvider } from "@humeai/voice-react";
 
 // Dynamically import Chat component to disable SSR for it
 const Chat = dynamic(() => import("@/components/Chat"), { ssr: false });
@@ -275,6 +284,8 @@ export default function Page() {
   const [messages, setMessages] = useState([]);
   const [query, setQuery] = useState("");
   const [showTextbox, setShowTextbox] = useState(false);
+  const timeout = useRef(null);
+  const ref = useRef(null);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -336,10 +347,40 @@ export default function Page() {
         // console.log(response.data);
       });
   }
+  const {
+    isOpen: isChatOpen,
+    onClose: isChatClose,
+    onOpen: onChatOpen,
+  } = useDisclosure();
+  const {
+    isOpen: isCallOpen,
+    onClose: onCallClose,
+    onOpen: onCallOpen,
+  } = useDisclosure();
   return loading ? (
     <Loading />
   ) : (
-    <>
+    <Flex flexDirection={"column"}>
+      {accessToken &&
+       <VoiceProvider
+        auth={{ type: "accessToken", value: accessToken }}
+        onMessage={() => {
+          if (timeout.current) {
+            window.clearTimeout(timeout.current);
+          }
+
+          timeout.current = window.setTimeout(() => {
+            if (ref.current) {
+              const scrollHeight = ref.current.scrollHeight;
+
+              ref.current.scrollTo({
+                top: scrollHeight,
+                behavior: "smooth",
+              });
+            }
+          }, 200);
+        }}
+      >
       <TopNav
         username={UserState.value.data?.email}
         role={UserState.value.data?.role}
@@ -347,7 +388,7 @@ export default function Page() {
         onOpenPreferences={onOpen}
         onOpenReminder={onOpenReminder}
       />
-      <Flex flex={1} overflowX="auto" p="32px" flexDir="row" gap={5} height={'80vh'}>
+      <Flex flex={1} overflowX="auto" p="32px" flexDir="column" gap={5}>
         <Box
           bgGradient="linear(to-r, purple.600, purple.400)"
           color="white"
@@ -355,13 +396,14 @@ export default function Page() {
           borderRadius="lg"
           boxShadow="md"
           mb={8}
-          maxHeight={'40%'}
+          maxHeight={"40%"}
         >
           <Heading>Welcome, {UserState.value.data?.name}</Heading>
           <Text mt={4} fontSize="lg">
             Your personal healthcare center
           </Text>
         </Box>
+
         <Flex>
           {/* <Wrap> */}
 
@@ -371,8 +413,8 @@ export default function Page() {
             email={UserState.value.data?.email}
           />
 
-
           <DangerButton
+            ml={4}
             onClick={handleEmergency}
             bgColor="#FF6347"
             color="white"
@@ -387,126 +429,134 @@ export default function Page() {
           {/* </Wrap> */}
 
           {/* Render Chat component on the page */}
-
         </Flex>
-        {accessToken && (
-          <HStack mt={8} gap={14}>
-            <Box>
-              <Chat accessToken={accessToken} />
-            </Box>
+      </Flex>
 
+      <Flex pb={20}>
+        <Flex flex={1}>
+          <EmotionDetection />
 
-            <Box>
-              <Button
-                pos={"fixed"}
-                bottom={5}
-                right={140}
-                onClick={() => {
-                  setShowTextbox(true);
-                  setStartChat(true);
-                }}
-              >
-                {" "}
-                StartChat
-              </Button>
-            </Box>
+          {accessToken && (
+            <VStack align={"flex-start"} gap={5} justify={"flex-start"} ml={10} mt={20}>
+              <Box>
+                <StartCall />
+              </Box>
 
-
-
-          </HStack>
-        )}
-
-        <Flex>
-          {startChat && (
-            <Box
-              display={"flex"}
-              flexDir={"column"}
-              justifyContent={"space-between"}
-              maxW={"800px"}
-            >
-              <div className="chatbot-body" ref={chatContainerRef}>
-                {messages.map((message, index) =>
-                  message.by == "ai" ? (
-                    message.msg == "loading" ? (
-                      <Lottie
-                        key={index}
-                        loop
-                        animationData={Data}
-                        play
-                        style={{ width: "100px" }}
-                      />
-                    ) : (
-                      <div
-                        key={index}
-                        className={`message-container-${message.by}`}
-                      >
-                        <div className="ai-div-container">
-                          <Image
-                            className="ai-img"
-                            src={"/chatbot/aiiq_icon.png"}
-                          />
-                        </div>
-                        <div className="message-ai">
-                          <div className="markdown">
-                            <ReactMarkdown>{message.msg}</ReactMarkdown>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  ) : (
-                    <div key={index} className={`message-container-${message.by}`}>
-                      <div className="message-user">{message.msg}</div>
-                      <div className="user-div-container">
-                        <Image className="user-img" src={"/chatbot/user.svg"} />
-                      </div>
-                    </div>
-                  )
-                )}
-              </div>
-              <Flex
-                width={"100%"}
-                justifyContent={"center"}
-                alignItems={"center"}
-                mb={10}
-                gap={10}
-              >
-                <Input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  width={"300px"}
-                />
+              <Box>
                 <Button
                   onClick={() => {
-                    const text = query;
-                    setQuery("");
-                    setMessages((prevMessages) => {
-                      const newState = [...prevMessages];
-                      newState.push({
-                        by: "user",
-                        msg: text,
-                      });
-                      newState.push({
-                        by: "ai",
-                        msg: "loading",
-                      });
-                      return newState;
-                    });
-                    handleSendQuery(text);
+                    setShowTextbox(true);
+                    setStartChat(true);
+                    // onChatOpen();
                   }}
                 >
-                  Send
+                  {" "}
+                  StartChat
                 </Button>
-                <DangerButton
-                  onClick={() => {
-                    setStartChat(false);
-                    setMessages([]);
-                  }}
-                >
-                  End Chat
-                </DangerButton>
-              </Flex>
-            </Box>
+              </Box>
+            </VStack>
           )}
+        </Flex>
+        <Flex flex={1} maxHeight={"600px"} overflowY={'auto'} pr={10} ref={chatContainerRef}>
+          <Messages ref={ref} />
+          {startChat && (
+                <Box
+                  display={"flex"}
+                  flexDir={"column"}
+                  justifyContent={"space-between"}
+                  maxW={"800px"}
+                >
+                  <div className="chatbot-body" ref={chatContainerRef}>
+                    {messages.map((message, index) =>
+                      message.by == "ai" ? (
+                        message.msg == "loading" ? (
+                          <Lottie
+                            key={index}
+                            loop
+                            animationData={Data}
+                            play
+                            style={{ width: "100px" }}
+                          />
+                        ) : (
+                          <div
+                            key={index}
+                            className={`message-container-${message.by}`}
+                          >
+                            <div className="ai-div-container">
+                              <Image
+                                className="ai-img"
+                                src={"/chatbot/aiiq_icon.png"}
+                              />
+                            </div>
+                            <div className="message-ai">
+                              <div className="markdown">
+                                <ReactMarkdown>{message.msg}</ReactMarkdown>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      ) : (
+                        <div
+                          key={index}
+                          className={`message-container-${message.by}`}
+                        >
+                          <div className="message-user">{message.msg}</div>
+                          <div className="user-div-container">
+                            <Image
+                              className="user-img"
+                              src={"/chatbot/user.svg"}
+                            />
+                          </div>
+                        </div>
+                      )
+                    )}
+                  </div>
+                  <Flex
+                    width={"100%"}
+                    alignItems={"center"}
+                    gap={2}
+                    mt={2}
+                  >
+                    <Input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                     
+                    />
+                    <Button
+                    colorScheme="blue"
+                    style={{fontSize:'14px', fontWeight : '500'}}
+                      onClick={() => {
+                        const text = query;
+                        setQuery("");
+                        setMessages((prevMessages) => {
+                          const newState = [...prevMessages];
+                          newState.push({
+                            by: "user",
+                            msg: text,
+                          });
+                          newState.push({
+                            by: "ai",
+                            msg: "loading",
+                          });
+                          return newState;
+                        });
+                        handleSendQuery(text);
+                      }}
+                    >
+                      Send
+                    </Button>
+                    <DangerButton
+                      onClick={() => {
+                        setStartChat(false);
+                        setMessages([]);
+                        // isChatClose();
+                      }}
+                    >
+                      End Chat
+                    </DangerButton>
+                  </Flex>
+                </Box>
+              )}
         </Flex>
       </Flex>
 
@@ -516,7 +566,11 @@ export default function Page() {
         email={UserState.value.data?.email}
         userRef={UserState.value.data?.ref}
       />
-      <EmotionDetection />
-    </>
+
+     
+      <Controls />
+      </VoiceProvider>
+}
+    </Flex>
   );
 }
