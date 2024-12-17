@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Webcam from "react-webcam";
 import { Box, Text } from "@chakra-ui/react";
 
+// blah blah
 const EmotionDetection = () => {
   // State to store the current predicted emotion
   const [currentEmotion, setCurrentEmotion] = useState("neutral"); // Default emotion is 'neutral'
@@ -89,7 +90,6 @@ const EmotionDetection = () => {
     <Box ml={10}>
       {/* Emotion Display Above the Camera Window */}
       <Box
-       
         width="100%"
         bg="rgba(0, 0, 0, 0.5)"
         color="white"
