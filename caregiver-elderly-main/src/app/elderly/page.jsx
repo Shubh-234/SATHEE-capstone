@@ -331,14 +331,37 @@ export default function Page() {
   }
 
   async function handleSendQuery(text) {
+    const emotionResponse = await axios.post(
+      "http://127.0.0.1:8000/predict-emotion/",
+      {
+        text: text,
+      }
+    );
+
+    const predictedEmotion = emotionResponse.data.predicted_emotion;
+    console.log(emotionResponse.status);
+    console.log(predictedEmotion);
+
     axios
       .post("/api/groq", {
         content: text,
+        emotion: predictedEmotion,
       })
       .then((response) => {
         setMessages((prevMessages) => {
           const newState = [...prevMessages];
           newState.pop();
+          const user = newState.pop();
+
+          if (predictedEmotion) {
+            newState.push({
+              ...user,
+              emotion: predictedEmotion,
+            });
+          } else {
+            newState.push(user);
+          }
+
           newState.push({
             by: "ai",
             msg: response.data.content,
@@ -511,15 +534,38 @@ export default function Page() {
                       ) : (
                         <div
                           key={index}
-                          className={`message-container-${message.by}`}
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "flex-end",
+                            minWidth: "200px",
+                          }}
                         >
-                          <div className="message-user">{message.msg}</div>
-                          <div className="user-div-container">
-                            <Image
-                              className="user-img"
-                              src={"/chatbot/user.svg"}
-                            />
+                          <div
+                            // key={index}
+                            style={{ minWidth: "200px" }}
+                            className={`message-container-${message.by}`}
+                          >
+                            <div className="message-user">{message.msg}</div>
+
+                            <div className="user-div-container">
+                              <Image
+                                className="user-img"
+                                src={"/chatbot/user.svg"}
+                              />
+                            </div>
                           </div>
+                          {message.emotion && (
+                            <Box
+                              padding={"2px"}
+                              // border={"1px solid"}
+                              // borderColor={"#CCCCCC"}
+                            >
+                              <Text fontSize={"10px"} color={"gray"}>
+                                Predicted Emotion: {message.emotion}
+                              </Text>
+                            </Box>
+                          )}
                         </div>
                       )
                     )}

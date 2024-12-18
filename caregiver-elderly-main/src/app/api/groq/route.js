@@ -4,7 +4,7 @@ export async function POST(req) {
   const data = await req.json();
 
   try {
-    const chatCompletion = await reqGroqAI(data.content);
+    const chatCompletion = await reqGroqAI(data.content, data.emotion);
     return NextResponse.json(
       {
         content: chatCompletion.choices[0]?.message?.content || "",
