@@ -296,19 +296,20 @@ export default function Page() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (process.env.NODE_ENV === "development") {
-        const mockUser = {
-          /* mock user data */
-        };
-        setUser(mockUser);
+      const sessionVal = await checkSession();
+      if (sessionVal.user) {
+        setUser(sessionVal.user);
         setLoading(false);
-      } else {
-        const sessionVal = await checkSession();
-        if (sessionVal.user) {
-          setUser(sessionVal.user);
-          setLoading(false);
-        }
       }
+      // if (process.env.NODE_ENV === "development") {
+      //   const mockUser = {
+      //     role: "elderly",
+      //   };
+      //   setUser(mockUser);
+      //   setLoading(false);
+      // } else {
+
+      // }
 
       // Fetch access token after user session is loaded
       const token = await getHumeAccessToken();
@@ -361,105 +362,117 @@ export default function Page() {
     <Loading />
   ) : (
     <Flex flexDirection={"column"}>
-      {accessToken &&
-       <VoiceProvider
-        auth={{ type: "accessToken", value: accessToken }}
-        onMessage={() => {
-          if (timeout.current) {
-            window.clearTimeout(timeout.current);
-          }
-
-          timeout.current = window.setTimeout(() => {
-            if (ref.current) {
-              const scrollHeight = ref.current.scrollHeight;
-
-              ref.current.scrollTo({
-                top: scrollHeight,
-                behavior: "smooth",
-              });
+      {accessToken && (
+        <VoiceProvider
+          auth={{ type: "accessToken", value: accessToken }}
+          onMessage={() => {
+            if (timeout.current) {
+              window.clearTimeout(timeout.current);
             }
-          }, 200);
-        }}
-      >
-      <TopNav
-        username={UserState.value.data?.email}
-        role={UserState.value.data?.role}
-        reference={UserState.value.data?.ref}
-        onOpenPreferences={onOpen}
-        onOpenReminder={onOpenReminder}
-      />
-      <Flex flex={1} overflowX="auto" p="32px" flexDir="column" gap={5}>
-        <Box
-          bgGradient="linear(to-r, purple.600, purple.400)"
-          color="white"
-          p={8}
-          borderRadius="lg"
-          boxShadow="md"
-          mb={8}
-          maxHeight={"40%"}
+
+            timeout.current = window.setTimeout(() => {
+              if (ref.current) {
+                const scrollHeight = ref.current.scrollHeight;
+
+                ref.current.scrollTo({
+                  top: scrollHeight,
+                  behavior: "smooth",
+                });
+              }
+            }, 200);
+          }}
         >
-          <Heading>Welcome, {UserState.value.data?.name}</Heading>
-          <Text mt={4} fontSize="lg">
-            Your personal healthcare center
-          </Text>
-        </Box>
-
-        <Flex>
-          {/* <Wrap> */}
-
-          <Preferences
-            isOpen={isOpen}
-            onClose={onClose}
-            email={UserState.value.data?.email}
+          <TopNav
+            username={UserState.value.data?.email}
+            role={UserState.value.data?.role}
+            reference={UserState.value.data?.ref}
+            onOpenPreferences={onOpen}
+            onOpenReminder={onOpenReminder}
           />
+          <Flex flex={1} overflowX="auto" p="32px" flexDir="column" gap={5}>
+            <Box
+              bgGradient="linear(to-r, purple.600, purple.400)"
+              color="white"
+              p={8}
+              borderRadius="lg"
+              boxShadow="md"
+              mb={8}
+              maxHeight={"40%"}
+            >
+              <Heading>Welcome, {UserState.value.data?.name}</Heading>
+              <Text mt={4} fontSize="lg">
+                Your personal healthcare center
+              </Text>
+            </Box>
 
-          <DangerButton
-            ml={4}
-            onClick={handleEmergency}
-            bgColor="#FF6347"
-            color="white"
-            _hover={{ bg: "#FF4500" }}
-            borderRadius="8px"
-            padding="12px 20px"
-            fontSize="16px"
-          >
-            Emergency
-          </DangerButton>
+            <Flex>
+              {/* <Wrap> */}
 
-          {/* </Wrap> */}
+              <Preferences
+                isOpen={isOpen}
+                onClose={onClose}
+                email={UserState.value.data?.email}
+              />
 
-          {/* Render Chat component on the page */}
-        </Flex>
-      </Flex>
+              <DangerButton
+                ml={4}
+                onClick={handleEmergency}
+                bgColor="#FF6347"
+                color="white"
+                _hover={{ bg: "#FF4500" }}
+                borderRadius="8px"
+                padding="12px 20px"
+                fontSize="16px"
+              >
+                Emergency
+              </DangerButton>
 
-      <Flex pb={20}>
-        <Flex flex={1}>
-          <EmotionDetection />
+              {/* </Wrap> */}
 
-          {accessToken && (
-            <VStack align={"flex-start"} gap={5} justify={"flex-start"} ml={10} mt={20}>
-              <Box>
-                <StartCall />
-              </Box>
+              {/* Render Chat component on the page */}
+            </Flex>
+          </Flex>
 
-              <Box>
-                <Button
-                  onClick={() => {
-                    setShowTextbox(true);
-                    setStartChat(true);
-                    // onChatOpen();
-                  }}
+          <Flex pb={20}>
+            <Flex flex={1}>
+              <EmotionDetection />
+
+              {accessToken && (
+                <VStack
+                  align={"flex-start"}
+                  gap={5}
+                  justify={"flex-start"}
+                  ml={10}
+                  mt={20}
                 >
-                  {" "}
-                  StartChat
-                </Button>
-              </Box>
-            </VStack>
-          )}
-        </Flex>
-        <Flex flex={1} maxHeight={"600px"} overflowY={'auto'} pr={10} ref={chatContainerRef}>
-          <Messages ref={ref} />
-          {startChat && (
+                  <Box>
+                    <StartCall />
+                  </Box>
+
+                  <Box>
+                    <Button
+                      onClick={() => {
+                        setShowTextbox(true);
+                        setStartChat(true);
+                        // onChatOpen();
+                      }}
+                    >
+                      {" "}
+                      StartChat
+                    </Button>
+                  </Box>
+                </VStack>
+              )}
+            </Flex>
+            <Flex
+              flex={1}
+              maxHeight={"600px"}
+              overflowY={"auto"}
+              pr={10}
+              ref={chatContainerRef}
+            >
+              <Messages ref={ref} />
+              {startChat && (
                 <Box
                   display={"flex"}
                   flexDir={"column"}
@@ -511,20 +524,14 @@ export default function Page() {
                       )
                     )}
                   </div>
-                  <Flex
-                    width={"100%"}
-                    alignItems={"center"}
-                    gap={2}
-                    mt={2}
-                  >
+                  <Flex width={"100%"} alignItems={"center"} gap={2} mt={2}>
                     <Input
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
-                     
                     />
                     <Button
-                    colorScheme="blue"
-                    style={{fontSize:'14px', fontWeight : '500'}}
+                      colorScheme="blue"
+                      style={{ fontSize: "14px", fontWeight: "500" }}
                       onClick={() => {
                         const text = query;
                         setQuery("");
@@ -557,20 +564,19 @@ export default function Page() {
                   </Flex>
                 </Box>
               )}
-        </Flex>
-      </Flex>
+            </Flex>
+          </Flex>
 
-      <Reminder
-        isOpenReminder={isOpenReminder}
-        onCloseReminder={onCloseReminder}
-        email={UserState.value.data?.email}
-        userRef={UserState.value.data?.ref}
-      />
+          <Reminder
+            isOpenReminder={isOpenReminder}
+            onCloseReminder={onCloseReminder}
+            email={UserState.value.data?.email}
+            userRef={UserState.value.data?.ref}
+          />
 
-     
-      <Controls />
-      </VoiceProvider>
-}
+          <Controls />
+        </VoiceProvider>
+      )}
     </Flex>
   );
 }

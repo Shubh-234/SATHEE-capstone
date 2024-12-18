@@ -14,13 +14,15 @@ import { getStorage } from "firebase/storage";
 // };
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDbJzIZEIuVXR19tjnE52bav0ZAxtpgf60",
-  authDomain: "sathee-da58e.firebaseapp.com",
-  projectId: "sathee-da58e",
-  storageBucket: "sathee-da58e.firebasestorage.app",
-  messagingSenderId: "767619976613",
-  appId: "1:767619976613:web:6954cf606726e3fa6b2c4c",
-  measurementId: "G-73LQ4R3HDQ",
+  apiKey: "AIzaSyBStTsMwHqaC9DmNlPH01zsR1JHHMeCcYE",
+  authDomain: "sathee-a4480.firebaseapp.com",
+  databaseURL:
+    "https://sathee-a4480-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "sathee-a4480",
+  storageBucket: "sathee-a4480.firebasestorage.app",
+  messagingSenderId: "29576035035",
+  appId: "1:29576035035:web:320b98bb6ed199e5732afe",
+  measurementId: "G-FP5J98MTGD",
 };
 
 // Initialize Firebase
